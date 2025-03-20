@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Assinatura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+        }
+        label {
+            margin-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        canvas {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            max-width: 720px; /* Ajustado para refletir o aumento de 20% */
+        }
+        #downloadBtn {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Gerador de Assinatura</h2>
+    <form id="signatureForm">
+        <label>Nome: <input type="text" id="nome" required></label>
+        <label>Cargo: <input type="text" id="cargo" required></label>
+        <label>Departamento: <input type="text" id="departamento" required></label>
+        <label>E-mail: <input type="email" id="email" required></label>
+        <label>Celular: <input type="text" id="celular" required maxlength="11"></label>
+        <label>Telefone: <input type="text" id="telefone" required maxlength="10"></label>
+        <button type="button" onclick="gerarAssinatura()">Gerar Assinatura</button>
+    </form>
+    
+    <canvas id="assinaturaCanvas"></canvas>
+    <p id="downloadMessage" style="display: none; margin-top: 10px; font-weight: bold;">Clique com o botão direito na imagem para realizar o download.</p>
+    
+    
+    <script>
+        function aplicarMascaraTelefone(input) {
+            let valor = input.value.replace(/\D/g, "");
+            if (valor.length <= 10) {
+                input.value = valor.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+            } else {
+                input.value = valor.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+            }
+        }
+
+         function aplicarMascaraCelular(input) {
+    let valor = input.value.replace(/\D/g, "").substring(0, 11);
+    if (valor.length === 11) {
+        input.value = valor.replace(/(\d{2})(\d{1})(\d{4})(\d{4})/, "($1) $2 $3-$4");
+    }
+}
+
+        document.getElementById('telefone').addEventListener('input', function() {
+            aplicarMascaraTelefone(this);
+        });
+
+        document.getElementById('celular').addEventListener('input', function() {
+            aplicarMascaraCelular(this);
+        });
+
+        function gerarAssinatura() {
+            const nome = document.getElementById('nome').value.trim();
+            const cargo = document.getElementById('cargo').value.trim();
+            const departamento = document.getElementById('departamento').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
+            
+            if (!nome || !cargo || !departamento || !email) {
+                alert('Necessário preencher o Nome, Cargo, Departamento e E-mail. O telefone e celular são opcionais.');
+                return;
+            }
+            const canvas = document.getElementById('assinaturaCanvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.src = 'Assinatura.png';
+            
+            img.onload = function() {
+                document.getElementById('downloadMessage').style.display = 'block';
+                const escala = 0.9; // Aumenta a imagem em 20%
+                canvas.width = img.width * escala;
+                canvas.height = img.height * escala;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                ctx.font = '14px Arial'; // Aumentando a fonte proporcionalmente
+                ctx.fillStyle = '#000';
+                
+                ctx.fillText(document.getElementById('nome').value, 50, 50); 
+                ctx.fillText(document.getElementById('cargo').value + ' | ' + document.getElementById('departamento').value, 50, 75);
+                ctx.fillText(document.getElementById('email').value, 50, 100);
+                const celular = document.getElementById('celular').value;
+                const telefone = document.getElementById('telefone').value;
+                let contatoTexto = '';
+                if (celular) contatoTexto += 'Cel: ' + celular;
+                if (telefone) contatoTexto += (contatoTexto ? ' | ' : '') + 'Tel: ' + telefone;
+                if (contatoTexto) ctx.fillText(contatoTexto, 50, 125);
+                
+const link = document.getElementById('downloadBtn');
+link.href = canvas.toDataURL('image/png');
+link.style.display = 'inline-block'; // Mostra o botão corretamente
+              
+            };
+        }
+    </script>
+</body>
+</html>
