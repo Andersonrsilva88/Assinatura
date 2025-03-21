@@ -61,7 +61,7 @@
 
         /* Cor para o texto do placeholder "Campo não obrigatório" (verde escuro) */
         input[placeholder="Campo não obrigatório"]::placeholder {
-            color: lightgreen; /* Verde claro para campos não obrigatórios */
+            color: lightgreen; /* Verde escuro para campos não obrigatórios */
         }
     </style>
 </head>
@@ -72,17 +72,13 @@
         <label>Cargo: <input type="text" id="cargo" required placeholder="Campo obrigatório"></label>
         <label>Departamento: <input type="text" id="departamento" required placeholder="Campo obrigatório"></label>
         <label>E-mail: <input type="email" id="email" required placeholder="Campo obrigatório"></label>
-        <label>Celular: <input type="text" id="celular" maxlength="11" placeholder="Campo não obrigatório"></label>
-        <label>Telefone: <input type="text" id="telefone" maxlength="10" placeholder="Campo não obrigatório"></label>
+        <label>Celular: <input type="text" id="celular" required maxlength="11" placeholder="Campo não obrigatório"></label>
+        <label>Telefone: <input type="text" id="telefone" required maxlength="10" placeholder="Campo não obrigatório"></label>
         <button type="button" onclick="gerarAssinatura()">Gerar Assinatura</button>
     </form>
     
     <canvas id="assinaturaCanvas"></canvas>
-
-    <!-- Botão para download da imagem gerada -->
-    <a id="downloadBtn" href="#" download="assinatura.png">
-        <button type="button">Baixar Assinatura</button>
-    </a>
+    <p id="downloadMessage" style="display: none; margin-top: 10px; font-weight: bold;">Clique com o botão direito na imagem para realizar o download.</p>
     
     <script>
         function aplicarMascaraTelefone(input) {
@@ -126,6 +122,7 @@
             img.src = 'Assinatura.png';
             
             img.onload = function() {
+                document.getElementById('downloadMessage').style.display = 'block';
                 const escala = 0.9; // Aumenta a imagem em 20%
                 canvas.width = img.width * escala;
                 canvas.height = img.height * escala;
@@ -134,9 +131,9 @@
                 ctx.font = '14px Arial'; // Aumentando a fonte proporcionalmente
                 ctx.fillStyle = '#000';
                 
-                ctx.fillText(nome, 50, 50); 
-                ctx.fillText(cargo + ' | ' + departamento, 50, 75);
-                ctx.fillText(email, 50, 100);
+                ctx.fillText(document.getElementById('nome').value, 50, 50); 
+                ctx.fillText(document.getElementById('cargo').value + ' | ' + document.getElementById('departamento').value, 50, 75);
+                ctx.fillText(document.getElementById('email').value, 50, 100);
                 const celular = document.getElementById('celular').value;
                 const telefone = document.getElementById('telefone').value;
                 let contatoTexto = '';
@@ -144,10 +141,9 @@
                 if (telefone) contatoTexto += (contatoTexto ? ' | ' : '') + 'Tel: ' + telefone;
                 if (contatoTexto) ctx.fillText(contatoTexto, 50, 125);
                 
-                // Mostrar o botão de download
-                const downloadBtn = document.getElementById('downloadBtn');
-                downloadBtn.style.display = 'inline-block';
-                downloadBtn.href = canvas.toDataURL('image/png'); // Configura o link do botão para a imagem gerada
+                const link = document.getElementById('downloadBtn');
+                link.href = canvas.toDataURL('image/png');
+                link.style.display = 'inline-block'; // Mostra o botão corretamente
             };
         }
     </script>
